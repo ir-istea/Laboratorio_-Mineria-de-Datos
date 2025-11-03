@@ -1,0 +1,7 @@
+pycaret
+pandas
+PyYAML
+dvc
+xgboost
+mlflow==2.9.2
+python-dotenv
