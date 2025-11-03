@@ -1,0 +1,38 @@
+# .github/workflows/ci.yaml 
+name: MLOps Pipeline
+# .Version 1
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+# Jobs
+jobs:
+  ml-pipeline:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+    
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+    
+    - name: Setup DVC
+      run: |
+        dvc remote modify origin --local auth basic
+        dvc remote modify origin --local user ${{ secrets.DAGSHUB_USER }}
+        dvc remote modify origin --local password ${{ secrets.DAGSHUB_TOKEN }}
+    
+    - name: Run pipeline
+      run: |
+        dvc pull
+        dvc repro
+        
+    - name: Show metrics
+      run: cat outputs/metrics/metrics.json
