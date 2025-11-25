@@ -1,4 +1,4 @@
-# src/train.py
+# src/train.py (usando PyCaret y MLflow)
 from pycaret.classification import *
 import yaml
 import pandas as pd
@@ -7,13 +7,17 @@ import mlflow
 from dotenv import load_dotenv
 
 def train_model():
+    # Cargar parámetros PRIMERO
     with open('params.yaml') as f:
         params = yaml.safe_load(f)
 
+    # --- MLflow setup ---
     if params.get('track_to_dagshub', False):
+        # Si vamos a DagsHub, cargar credenciales y configurar URI
         load_dotenv()
         mlflow.set_tracking_uri(params['dagshub_tracking_uri'])
     else:
+        # Si es local, asegurarse de que no haya URI de tracking de DagsHub
         if 'MLFLOW_TRACKING_URI' in os.environ:
             del os.environ['MLFLOW_TRACKING_URI']
         if 'MLFLOW_TRACKING_USERNAME' in os.environ:
@@ -24,7 +28,7 @@ def train_model():
     # Cargar datos procesados
     df = pd.read_csv(params['data_read_csv'])
     
-    # Setup PyCaret
+    # Setup PyCaret - esto leerá las variables de entorno de MLflow y lo configurará todo
     exp = ClassificationExperiment()
     exp.setup(
         data=df, 
@@ -35,16 +39,20 @@ def train_model():
         experiment_name="telco-churn-prediction"
     )
     
+    # Comparar modelos automáticamente (PyCaret logueará todo)
     best_models = exp.compare_models(
         include=params['models_to_compare'],
         sort=params['metric'],
         n_select=3
     )
     
+    # Seleccionar y tunear el mejor
     best_model = exp.tune_model(best_models[0])
     
+    # Finalizar modelo
     final_model = exp.finalize_model(best_model)
     
+    # print("Modelo guardado en MLflow")
 
 if __name__ == "__main__":
     train_model()

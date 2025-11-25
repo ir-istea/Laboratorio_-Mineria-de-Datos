@@ -1,4 +1,4 @@
-stages:
+stages:  
   data_prep:
     cmd: python src/data_prep.py
     deps:
@@ -20,4 +20,7 @@ stages:
     - src/evaluate.py
     - data/processed/telco_churn_processed.csv
 
-    ## Stages completos
+  promote_model:
+    cmd: conda run -n pycaret-env python src/promote_best_model.py
+    deps:
+    - src/promote_best_model.py

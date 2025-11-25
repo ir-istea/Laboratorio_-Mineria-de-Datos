@@ -1,4 +1,3 @@
-# src/evaluate.py (con MLflow)
 import mlflow
 import pandas as pd
 import yaml
@@ -34,6 +33,7 @@ def evaluate_model():
     X_unseen = data_unseen.drop('churn', axis=1)
     y_unseen = data_unseen['churn']
 
+    # --- Búsqueda del mejor modelo en MLflow ---
     # Buscar el mejor run dentro del experimento, ordenado por Accuracy
     best_run = mlflow.search_runs(
         experiment_names=[experiment_name],
@@ -45,13 +45,14 @@ def evaluate_model():
     print(f"Mejor Run ID encontrado: {best_run_id}")
     print(f"Métricas del mejor run: Accuracy = {best_run['metrics.Accuracy']:.4f}")
 
-    # Cargar el modelo 
+    # Cargar el modelo del mejor run
     model_uri = f"runs:/{best_run_id}/model"
     loaded_model = mlflow.pyfunc.load_model(model_uri)
 
     # --- Evaluación del modelo cargado ---
     predictions = loaded_model.predict(X_unseen)
     
+    # Calcular métricas de evaluación final
     final_accuracy = accuracy_score(y_unseen, predictions)
     final_precision = precision_score(y_unseen, predictions)
     final_recall = recall_score(y_unseen, predictions)
@@ -63,6 +64,7 @@ def evaluate_model():
     print(f"  Recall: {final_recall:.4f}")
     print(f"  F1-Score: {final_f1:.4f}")
 
+    # --- Loguear las métricas de evaluación final al run original de MLflow ---
     with mlflow.start_run(run_id=best_run_id):
         mlflow.log_metric("final_accuracy", final_accuracy)
         mlflow.log_metric("final_precision", final_precision)

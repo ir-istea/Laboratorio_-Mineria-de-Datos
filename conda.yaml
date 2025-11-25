@@ -1,4 +1,4 @@
-# conda.yaml
+# conda
 name: pycaret-env
 dependencies:
   - python=3.9
@@ -8,6 +8,4 @@ dependencies:
   - pip:
     - pycaret[full]
     - dvc[gs]
-    - dagshub
-
-# Corrido
+    - dagshub  

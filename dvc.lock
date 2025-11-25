@@ -1,6 +1,6 @@
 schema: '2.0'
 stages:
-  data_prep:
+  data_prep: 
     cmd: python src/data_prep.py
     deps:
     - path: data/raw/telco_churn.csv
@@ -25,12 +25,12 @@ stages:
       size: 873370
     - path: params.yaml
       hash: md5
-      md5: fafff4cfdca5a5fc09c1f42e4426a2a9
-      size: 354
+      md5: 65561151a39589745f47d0762607a416
+      size: 410
     - path: src/train.py
       hash: md5
-      md5: 1b820eeae07e9576ec59f77694acc842
-      size: 1934
+      md5: 5c43093645d1b58d7f793260adbae751
+      size: 1915
   evaluate:
     cmd: conda run -n pycaret-env python src/evaluate.py
     deps:
@@ -40,5 +40,12 @@ stages:
       size: 873370
     - path: src/evaluate.py
       hash: md5
-      md5: 235b7a7bfbe1e6c8750b2973f95cf539
-      size: 3020
+      md5: 8327551fe7afae73097d2d74bd64de6b
+      size: 3001
+  promote_model:
+    cmd: conda run -n pycaret-env python src/promote_best_model.py
+    deps:
+    - path: src/promote_best_model.py
+      hash: md5
+      md5: 6789d4cfeeaf3b0981d739c3d0fd7800
+      size: 3461
